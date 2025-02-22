@@ -1,6 +1,7 @@
 import UserModel from "../modal/user.js";
 import { validationResult } from "express-validator";
 import * as UserService from "../Services/createuser.js";
+import Redis from "../Services/Redis.js";
 
 export const createUser = async (req, res) => {
   const errors = validationResult(req);
@@ -11,9 +12,9 @@ export const createUser = async (req, res) => {
     const { username, email, password } = req.body;
     const user = await UserService.createUser({ username, email, password });
     const token = await user.generateToken();
-    res.status(201).json({ message: "User created", data: user, token });
+    return res.status(201).json({ message: "User created", data: user, token });
   } catch (e) {
-    res.status(500).json({ message: e.message });
+    return res.status(500).json({ message: e.message });
   }
 };
 
@@ -30,10 +31,26 @@ export const loginUser = async (req, res) => {
     }
     const isMatch = await user.validatePassword(password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid Password" });
     }
-    return res.status(200).json({ message: "User logged in" });
+    return res.status(200).json({
+      message: "User logged in",
+      data: user,
+      token: user.generateToken(),
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
+};
+
+export const logoutUser = async (req, res) => {
+  console.log(req.tokenData);
+  const timeRemaining = req.tokenData.exp * 1000 - Date.now();
+  await Redis.set(
+    `blacklist:${req.tokenData.token}`,
+    true,
+    "EX",
+    Math.floor(timeRemaining / 1000)
+  );
+  res.send("Logged out");
 };

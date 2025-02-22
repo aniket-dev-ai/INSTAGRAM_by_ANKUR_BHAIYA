@@ -11,5 +11,9 @@ UserRouter.post(
   User.createUser
 );
 UserRouter.post("/login", User.loginUser);
+UserRouter.get("/profile",  UserMiddleware.authUser ,(req , res)=>{
+  res.json(req.user)
+} );
+UserRouter.get("/logout",  UserMiddleware.authUser , User.logoutUser);
 
 export default UserRouter;
