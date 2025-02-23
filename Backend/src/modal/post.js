@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { authUser } from "../middleware/user";
+import { authUser } from "../middleware/user.js";
 
 const postSchema = new mongoose.Schema(
   {
@@ -9,13 +9,17 @@ const postSchema = new mongoose.Schema(
       maxlength: [1000, "Caption must be at most 1000 characters long"],
     },
     media: {
-      type: Object  ,
+      type: Object,
       required: [true, "Media is required"],
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "UserModel",
       required: [true, "Author is required"],
+    },
+    likes: {
+      type: Number,
+      default: 0,
     },
   },
   {
@@ -37,6 +41,14 @@ postSchema.methods.updatecaption = async function (caption) {
   return this;
 };
 
+postSchema.statics.isValibPostId = async function (postId) {
+  if (!postId) {
+    throw new Error("Post ID is required");
+  }
+  const isValibPostId = mongoose.Types.ObjectId.isValid(postId);
+  return isValibPostId;
+};
+
 postSchema.statics.getrecentPost = async function (limit = 5) {
   const posts = await this.find().sort({ createdAt: -1 }).limit(limit);
   return posts;
@@ -44,6 +56,18 @@ postSchema.statics.getrecentPost = async function (limit = 5) {
 
 postSchema.statics.deletePost = async function () {
   await this.remove();
+  return this;
+};
+
+postSchema.methods.incrementLike = async function () {
+  this.likes += 1;
+  await this.save();
+  return this;
+};
+
+postSchema.methods.decrementLike = async function () {
+  this.likes -= 1;
+  await this.save();
   return this;
 };
 
