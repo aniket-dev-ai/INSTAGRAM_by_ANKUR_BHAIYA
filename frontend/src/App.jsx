@@ -1,7 +1,21 @@
-export default function App() {
+import Feed from "./Post Pages/Feed";
+import CreatePost from "./Post Pages/PostCreate";
+import SinglePost from "./Post Pages/SinglePost";
+import Login from "./User Pages/Login";
+import Profile from "./User Pages/Profile";
+import Register from "./User Pages/Register";
+
+function App() {
   return (
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1>
-  )
+    <div>
+      <Register></Register>
+      <Login/>
+      <Profile/>
+      <CreatePost/>
+      <Feed/>
+      <SinglePost/>
+    </div>
+  );
 }
+
+export default App;

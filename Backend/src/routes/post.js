@@ -13,6 +13,6 @@ router.post(
 );
 router.patch("/like/:PostId", authUser, Post.likePost);
 router.get("/feed", authUser, Post.getFeed);
-router.get("/getpost", authUser, Post.getPost);
+router.get("/getpost/:postId", authUser, Post.getPost);
 
 export default router;

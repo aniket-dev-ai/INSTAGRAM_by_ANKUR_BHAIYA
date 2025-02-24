@@ -77,5 +77,19 @@ export const getFeed = async (req, res, next) => {
   }
 };
 
-
-export const getPost = async (req, res, next) => {}
+export const getPost = async (req, res, next) => {
+  const postId = req.params.PostId;
+  if (!Postmodel.isValidPostId(postId)) {
+    return res.status(400).json({ error: "Invalid Post ID" });
+  }
+  try {
+    const post = await Postmodel.findById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    res.json({ post });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error while fetching post" });
+  }
+};
